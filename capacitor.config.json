@@ -1,0 +1,8 @@
+{
+  "appId": "com.raghu.niftyscalper",
+  "appName": "Nifty 50 Scalper",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

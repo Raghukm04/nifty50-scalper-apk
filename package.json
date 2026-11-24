@@ -1,0 +1,11 @@
+{
+  "name": "nifty50-scalper-apk",
+  "version": "1.0.0",
+  "description": "Nifty 50 Index 5-Minute Intraday Scalper for Android",
+  "private": true,
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  }
+}
