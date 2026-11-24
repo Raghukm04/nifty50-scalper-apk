@@ -31,6 +31,9 @@
   </div>
 
   <div class="card">
+    <label class="label">Free Kite Publisher API Key</label>
+    <input type="text" id="apiKeyInput" placeholder="Paste key from developers.kite.trade" />
+
     <label class="label">Max Risk Per Trade (₹)</label>
     <input type="number" id="maxRisk" value="800" min="100" step="50" />
 
@@ -50,15 +53,33 @@
     <div class="row"><span class="label">Position Size</span><strong id="lotQty">--</strong></div>
     <div class="row"><span class="label">Spot Target / Max SL</span><strong id="levels">--</strong></div>
 
-    <form id="kiteForm" method="post" action="https://kite.zerodha.com/connect/basket" target="_blank">
-      <input type="hidden" name="api_key" value="kitefront" />
+    <form id="kiteForm" method="post" action="https://kite.zerodha.com/connect/basket" target="_blank" onsubmit="return attachKey()">
+      <input type="hidden" id="kiteApiKey" name="api_key" value="" />
       <input type="hidden" id="basketData" name="data" value="" />
       <button type="submit" class="btn-kite" id="kiteBtn">Review & Place Order in Kite</button>
     </form>
-    <div class="note">Square off all MIS intraday positions before 15:15 IST.</div>
+    <div class="note">Place your SL & Target in Kite right after entry. Exit all MIS positions before 15:15 IST.</div>
   </div>
 
   <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedKey = localStorage.getItem("kite_pub_key");
+      const savedRisk = localStorage.getItem("nifty_max_risk");
+      if (savedKey) document.getElementById("apiKeyInput").value = savedKey;
+      if (savedRisk) document.getElementById("maxRisk").value = savedRisk;
+    });
+
+    function attachKey() {
+      const key = document.getElementById("apiKeyInput").value.trim();
+      if (!key) {
+        alert("Paste your free Kite Publisher API Key first.");
+        return false;
+      }
+      localStorage.setItem("kite_pub_key", key);
+      document.getElementById("kiteApiKey").value = key;
+      return true;
+    }
+
     const NSE_HOLIDAYS = new Set([
       "2026-01-26", "2026-03-03", "2026-03-26", "2026-03-31",
       "2026-04-03", "2026-04-14", "2026-05-01", "2026-08-15",
@@ -145,6 +166,9 @@
       const badge = document.getElementById("statusBadge");
       const kiteBtn = document.getElementById("kiteBtn");
 
+      const keyVal = document.getElementById("apiKeyInput").value.trim();
+      if (keyVal) localStorage.setItem("kite_pub_key", keyVal);
+
       btn.innerText = "Scanning Nifty 50...";
       card.style.display = "block";
       kiteBtn.style.display = "none";
@@ -189,6 +213,7 @@
 
         const atm = Math.round(spot / 50) * 50;
         const maxRisk = parseFloat(document.getElementById("maxRisk").value) || 800;
+        localStorage.setItem("nifty_max_risk", String(maxRisk));
         const estOptSl = +(slPts * 0.5).toFixed(2);
         const lots = Math.max(1, Math.floor(maxRisk / (estOptSl * 65)));
         const qty = lots * 65;
@@ -223,7 +248,7 @@
         }
       } catch (err) {
         badge.className = "badge block";
-        badge.innerText = "ERROR: Check Internet Connection";
+        badge.innerText = "ERROR: " + (err.message || "Network Failed");
       } finally {
         btn.innerText = "Scan NSE:NIFTY 50 Now";
       }
